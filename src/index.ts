@@ -11,6 +11,7 @@ const socket = raw.createSocket({
     addressFamily: raw.AddressFamily.IPv4,
 });
 
+console.log(`Pinging ${process.env.IP_ADDRESS}...`);
 let sequenceNumber = 0;
 setInterval(() => {
     const buffer = createBufferFromPingMessage({
@@ -27,14 +28,17 @@ setInterval(() => {
     );
 
     socket.once('message', (buffer: Buffer, source: string) => {
-        const pingMessage = parsePingMessageFromBuffer(
-            parseIpMessageFromBuffer(buffer).data,
-        );
+        const ipMessage = parseIpMessageFromBuffer(buffer).data;
+        const pingMessage = parsePingMessageFromBuffer(ipMessage);
         console.log(
             `Received ${buffer.length} bytes from ${source}. Identifier is ${
                 pingMessage.identifier
             }, sequence number is ${pingMessage.sequenceNumber}`,
         );
+    });
+
+    socket.once('error', error => {
+        console.log(error);
     });
 
     ++sequenceNumber;
