@@ -43,7 +43,9 @@ export const parsePingMessageFromBuffer = (buffer: Buffer): PingMessage => {
     const receivedData = icmpMessage.data.toString('utf8');
     if (receivedData !== PING_DATA) {
         throw new Error(
-            `Failed to parse the ping message: received a wrong response ${receivedData}`,
+            `Failed to parse the ping message: received a wrong response: ${[
+                ...icmpMessage.data,
+            ].join(' ')}`,
         );
     }
 
