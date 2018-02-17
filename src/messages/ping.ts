@@ -9,7 +9,7 @@ const ECHO_REQUEST_CODE = 0x00;
 
 const PING_DATA = 'abcdefghijklmnopqrstuvwxyz';
 
-interface PingMessage {
+export interface PingMessage {
     identifier: number;
     sequenceNumber: number;
 }

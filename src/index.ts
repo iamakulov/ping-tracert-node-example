@@ -4,7 +4,9 @@ import { parseIpMessageFromBuffer } from './messages/ip';
 import {
     createBufferFromPingMessage,
     parsePingMessageFromBuffer,
+    PingMessage,
 } from './messages/ping';
+import { parseIcmpMessageFromBuffer } from './messages/icmp';
 
 const socket = raw.createSocket({
     protocol: raw.Protocol.ICMP,
@@ -39,26 +41,36 @@ setInterval(() => {
         () => {},
     );
 
-    socket.once('message', (buffer: Buffer, source: string) => {
-        const ipMessage = parseIpMessageFromBuffer(buffer);
-        console.log(memoizedCurrentStep, ipMessage.sourceIp);
-
-        try {
-            parsePingMessageFromBuffer(ipMessage.data);
-            // If parsed successfully, then the ping message was returned => we reached the end
-            process.exit(0);
-        } catch (e) {
-            // Do nothing
-        }
-    });
-
-    socket.once('error', error => {
-        console.log(error);
-    });
-
-    socket.once('close', error => {
-        console.log(error);
-    });
-
     ++currentStep;
 }, 1000);
+
+socket.on('message', (buffer: Buffer, source: string) => {
+    const ipMessage = parseIpMessageFromBuffer(buffer);
+
+    let pingMessage: PingMessage;
+    try {
+        // If parsed successfully, then the ping message was returned
+        pingMessage = parsePingMessageFromBuffer(ipMessage.data);
+    } catch (e) {
+        // If parsed unsuccessfully, then the error message was returned
+        // THe ping message is included into the ICMP’s message body
+        const icmpMessage = parseIcmpMessageFromBuffer(ipMessage.data);
+        const includedIpMessage = parseIpMessageFromBuffer(icmpMessage.data);
+        pingMessage = parsePingMessageFromBuffer(includedIpMessage.data);
+    }
+
+    console.log(pingMessage.sequenceNumber, ipMessage.sourceIp);
+
+    if (ipMessage.sourceIp === process.env.IP_ADDRESS) {
+        // We reached the end
+        process.exit(0);
+    }
+});
+
+socket.on('error', error => {
+    console.log('Error', error);
+});
+
+socket.on('close', error => {
+    console.log('Close', error);
+});
