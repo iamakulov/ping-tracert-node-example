@@ -14,5 +14,9 @@
         "@types/node": "^9.4.6",
         "dotenv": "^5.0.0",
         "raw-socket": "^1.5.2"
+    },
+    "devDependencies": {
+        "ts-node": "^4.1.0",
+        "typescript": "^2.7.2"
     }
 }
