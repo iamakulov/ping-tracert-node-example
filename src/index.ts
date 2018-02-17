@@ -41,7 +41,7 @@ setInterval(() => {
 
     socket.once('message', (buffer: Buffer, source: string) => {
         const ipMessage = parseIpMessageFromBuffer(buffer);
-        console.log(memoizedCurrentStep, source);
+        console.log(memoizedCurrentStep, ipMessage.sourceIp);
 
         try {
             parsePingMessageFromBuffer(ipMessage.data);
