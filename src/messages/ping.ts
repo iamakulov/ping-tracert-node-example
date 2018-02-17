@@ -14,6 +14,10 @@ export interface PingMessage {
     sequenceNumber: number;
 }
 
+interface PingParsingOptions {
+    validateBody?: boolean;
+}
+
 export const createBufferFromPingMessage = ({
     identifier,
     sequenceNumber,
@@ -29,7 +33,10 @@ export const createBufferFromPingMessage = ({
     });
 };
 
-export const parsePingMessageFromBuffer = (buffer: Buffer): PingMessage => {
+export const parsePingMessageFromBuffer = (
+    buffer: Buffer,
+    { validateBody = true }: PingParsingOptions = {},
+): PingMessage => {
     const icmpMessage = parseIcmpMessageFromBuffer(buffer);
 
     if (!(icmpMessage.type === 0 || icmpMessage.type === 8)) {
@@ -41,7 +48,7 @@ export const parsePingMessageFromBuffer = (buffer: Buffer): PingMessage => {
     }
 
     const receivedData = icmpMessage.data.toString('utf8');
-    if (receivedData !== PING_DATA) {
+    if (validateBody && receivedData !== PING_DATA) {
         throw new Error(
             `Failed to parse the ping message: received a wrong response: ${[
                 ...icmpMessage.data,

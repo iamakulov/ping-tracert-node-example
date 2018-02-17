@@ -56,7 +56,9 @@ socket.on('message', (buffer: Buffer, source: string) => {
         // THe ping message is included into the ICMP’s message body
         const icmpMessage = parseIcmpMessageFromBuffer(ipMessage.data);
         const includedIpMessage = parseIpMessageFromBuffer(icmpMessage.data);
-        pingMessage = parsePingMessageFromBuffer(includedIpMessage.data);
+        pingMessage = parsePingMessageFromBuffer(includedIpMessage.data, {
+            validateBody: false,
+        });
     }
 
     console.log(pingMessage.sequenceNumber, ipMessage.sourceIp);
