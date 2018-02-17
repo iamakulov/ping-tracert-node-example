@@ -11,7 +11,7 @@ import {
 import { parseIcmpMessageFromBuffer } from './messages/icmp';
 
 const socket = raw.createSocket({
-    protocol: raw.Protocol.NONE,
+    protocol: raw.Protocol.ICMP,
     addressFamily: raw.AddressFamily.IPv4,
 });
 
